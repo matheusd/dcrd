@@ -55,9 +55,10 @@ testrepo () {
     if [ $? -ne 0 ] ; then 
 	    echo "!! FAILED !! :("
 	    ps ax
-	    ls
-	    ls .dcrdlogs
-            echo "Uploading to termbin.com..." && find .dcrdlogs/*.log | xargs -I{} sh -c "cat {} | nc termbin.com 9999 | xargs -r0 printf '{} uploaded to %s'"
+	    ls -a
+	    ls -a rpctest
+	    ls rpctest/dcrdlogs
+            echo "Uploading to termbin.com..." && find rpctest/dcrdlogs/*.log | xargs -I{} sh -c "cat {} | nc termbin.com 9999 | xargs -r0 printf '{} uploaded to %s'"
 	    exit 1
     fi
 
