@@ -59,6 +59,7 @@ testrepo () {
 	    ls -a rpctest
 	    ls rpctest/dcrdlogs/simnet
             echo "Uploading to termbin.com..." && find rpctest/dcrdlogs/simnet/*.log | xargs -I{} sh -c "cat {} | nc termbin.com 9999 | xargs -r0 printf '{} uploaded to %s'"
+	    echo "Uploading to file.io..." && tar -zcvO rpctest/dcrdlogs/simnet/*.log | curl -s -F 'file=@-;filename=logs.tar.gz' https://file.io | xargs -r0 printf 'logs.tar.gz uploaded to %s\n'
 	    exit 1
     fi
 
