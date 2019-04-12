@@ -48,12 +48,14 @@ testrepo () {
   MODPATHS=". $MODPATHS"
   for module in $MODPATHS; do
     echo "==> ${module}"
+    set +e
     env GORACE='halt_on_error=1' CC=gcc $GO test -v -short -race \
       -tags rpctest -timeout 8m ./${module}/...
 
     if [ $? -ne 0 ] ; then 
 	    echo "!! FAILED !! :("
 	    ps ax
+	    exit 1
     fi
 
     # check linters
