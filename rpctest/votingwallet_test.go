@@ -8,6 +8,7 @@
 package rpctest
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -26,7 +27,7 @@ func testCanPassSVH(t *testing.T, vw *VotingWallet) {
 	}
 
 	// Generate enough blocks to get us past SVH.
-	targetHeight := vw.hn.ActiveNet.StakeValidationHeight * 2
+	targetHeight := vw.hn.ActiveNet.StakeValidationHeight + 10
 	if targetHeight < startHeight {
 		targetHeight = startHeight + 10
 	}
@@ -48,6 +49,7 @@ func testCanPassSVH(t *testing.T, vw *VotingWallet) {
 			t.Fatalf("block was not mined at height %d (got %d as best height)",
 				h, actualHeight)
 		}
+		fmt.Printf("generated block %d / %d\n", actualHeight, targetHeight)
 	}
 
 	t.Logf("Generated up to block %d\n", targetHeight)
@@ -128,6 +130,8 @@ func TestMinimalVotingWallet(t *testing.T) {
 			break
 		}
 	}
+
+	t.Logf("test finished. Gonna tear down.")
 
 	err = hn.TearDown()
 	if err != nil {
