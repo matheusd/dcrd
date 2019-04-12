@@ -63,6 +63,7 @@ func TestMinimalVotingWallet(t *testing.T) {
 	logDir := "./dcrdlogs"
 	extraArgs := []string{
 		"--debuglevel=debug",
+		"--logdir=" + logDir,
 	}
 
 	info, err := os.Stat(logDir)

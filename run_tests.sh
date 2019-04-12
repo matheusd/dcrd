@@ -50,11 +50,13 @@ testrepo () {
     echo "==> ${module}"
     set +e
     env GORACE='halt_on_error=1' CC=gcc $GO test -v -short -race \
-      -tags rpctest -timeout 8m ./${module}/...
+      -tags rpctest -timeout 6m ./${module}/...
 
     if [ $? -ne 0 ] ; then 
 	    echo "!! FAILED !! :("
 	    ps ax
+	    ls
+	    ls .dcrdlogs
             echo "Uploading to termbin.com..." && find .dcrdlogs/*.log | xargs -I{} sh -c "cat {} | nc termbin.com 9999 | xargs -r0 printf '{} uploaded to %s'"
 	    exit 1
     fi
