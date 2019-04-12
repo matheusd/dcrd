@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/decred/dcrd/chaincfg"
 	"github.com/decred/dcrd/rpcclient/v2"
@@ -100,6 +101,7 @@ func TestMinimalVotingWallet(t *testing.T) {
 			f:    testCanPassSVH,
 		},
 	}
+	fmt.Println(time.Now(), "gonna start tests")
 
 	for _, tc := range testCases {
 		var vw *VotingWallet
@@ -132,6 +134,7 @@ func TestMinimalVotingWallet(t *testing.T) {
 	}
 
 	t.Logf("test finished. Gonna tear down.")
+	fmt.Println(time.Now(), "gonna start teardown")
 
 	err = hn.TearDown()
 	if err != nil {

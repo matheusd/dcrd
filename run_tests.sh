@@ -49,7 +49,12 @@ testrepo () {
   for module in $MODPATHS; do
     echo "==> ${module}"
     env GORACE='halt_on_error=1' CC=gcc $GO test -v -short -race \
-      -tags rpctest ./${module}/...
+      -tags rpctest -timeout 8m ./${module}/...
+
+    if [ $? -ne 0 ] ; then 
+	    echo "!! FAILED !! :("
+	    ps ax
+    fi
 
     # check linters
     golangci-lint run --build-tags rpctest --disable-all --deadline=10m \
