@@ -57,8 +57,8 @@ testrepo () {
 	    ps ax
 	    ls -a
 	    ls -a rpctest
-	    ls rpctest/dcrdlogs
-            echo "Uploading to termbin.com..." && find rpctest/dcrdlogs/*.log | xargs -I{} sh -c "cat {} | nc termbin.com 9999 | xargs -r0 printf '{} uploaded to %s'"
+	    ls rpctest/dcrdlogs/simnet
+            echo "Uploading to termbin.com..." && find rpctest/dcrdlogs/simnet/*.log | xargs -I{} sh -c "cat {} | nc termbin.com 9999 | xargs -r0 printf '{} uploaded to %s'"
 	    exit 1
     fi
 
