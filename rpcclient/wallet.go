@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
+	walletjson "decred.org/dcrwallet/rpc/jsonrpc/types"
 	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/decred/dcrd/dcrjson/v3"
 	"github.com/decred/dcrd/dcrutil/v2"
@@ -16,7 +17,6 @@ import (
 	chainjsonv1 "github.com/decred/dcrd/rpc/jsonrpc/types"
 	chainjson "github.com/decred/dcrd/rpc/jsonrpc/types/v2"
 	"github.com/decred/dcrd/wire"
-	walletjson "github.com/decred/dcrwallet/rpc/jsonrpc/types"
 )
 
 // *****************************
@@ -802,14 +802,9 @@ func (c *Client) PurchaseTicketAsync(fromAccount string,
 		expiryVal = *expiry
 	}
 
-	ticketFeeFloat := 0.0
-	if ticketFee != nil {
-		ticketFeeFloat = ticketFee.ToCoin()
-	}
-
 	cmd := walletjson.NewPurchaseTicketCmd(fromAccount, spendLimit.ToCoin(),
 		&minConfVal, &ticketAddrStr, &numTicketsVal, &poolAddrStr,
-		&poolFeesFloat, &expiryVal, dcrjson.String(""), &ticketFeeFloat)
+		&poolFeesFloat, &expiryVal, dcrjson.String(""))
 
 	return c.sendCmd(cmd)
 }
@@ -2603,21 +2598,6 @@ type FutureSetTicketFeeResult chan *response
 func (r FutureSetTicketFeeResult) Receive() error {
 	_, err := receiveFuture(r)
 	return err
-}
-
-// SetTicketFeeAsync returns an instance of a type that can be used to
-// get the result of the RPC at some future time by invoking the Receive
-// function on the returned instance.
-//
-// See SetTicketFee for the blocking version and more details.
-func (c *Client) SetTicketFeeAsync(fee dcrutil.Amount) FutureSetTicketFeeResult {
-	cmd := walletjson.NewSetTicketFeeCmd(fee.ToCoin())
-	return c.sendCmd(cmd)
-}
-
-// SetTicketFee sets the ticket fee per KB amount.
-func (c *Client) SetTicketFee(fee dcrutil.Amount) error {
-	return c.SetTicketFeeAsync(fee).Receive()
 }
 
 // FutureSetTxFeeResult is a future promise to deliver the result of a
