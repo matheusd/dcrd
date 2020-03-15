@@ -2539,56 +2539,6 @@ func (c *Client) GetTickets(includeImmature bool) ([]*chainhash.Hash, error) {
 	return c.GetTicketsAsync(includeImmature).Receive()
 }
 
-// FutureListScriptsResult is a future promise to deliver the result of a
-// ListScriptsAsync RPC invocation (or an applicable error).
-type FutureListScriptsResult chan *response
-
-// Receive waits for the response promised by the future and returns the info
-// provided by the server.
-func (r FutureListScriptsResult) Receive() ([][]byte, error) {
-	res, err := receiveFuture(r)
-	if err != nil {
-		return nil, err
-	}
-
-	// Unmarshal result as a listscripts result object.
-	var resScr walletjson.ListScriptsResult
-	err = json.Unmarshal(res, &resScr)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert the redeemscripts into byte slices and
-	// store them.
-	redeemScripts := make([][]byte, len(resScr.Scripts))
-	for i := range resScr.Scripts {
-		rs := resScr.Scripts[i].RedeemScript
-		rsB, err := hex.DecodeString(rs)
-		if err != nil {
-			return nil, err
-		}
-		redeemScripts[i] = rsB
-	}
-
-	return redeemScripts, nil
-}
-
-// ListScriptsAsync returns an instance of a type that can be used to
-// get the result of the RPC at some future time by invoking the Receive
-// function on the returned instance.
-//
-// See ListScripts for the blocking version and more details.
-func (c *Client) ListScriptsAsync() FutureListScriptsResult {
-	cmd := walletjson.NewListScriptsCmd()
-	return c.sendCmd(cmd)
-}
-
-// ListScripts returns a list of the currently known redeemscripts from the
-// wallet as a slice of byte slices.
-func (c *Client) ListScripts() ([][]byte, error) {
-	return c.ListScriptsAsync().Receive()
-}
-
 // FutureSetTicketFeeResult is a future promise to deliver the result of a
 // SetTicketFeeAsync RPC invocation (or an applicable error).
 type FutureSetTicketFeeResult chan *response
