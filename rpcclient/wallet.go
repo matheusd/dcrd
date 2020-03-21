@@ -1267,42 +1267,7 @@ func (r FutureKeyPoolRefillResult) Receive() error {
 	return err
 }
 
-// KeyPoolRefillAsync returns an instance of a type that can be used to get the
-// result of the RPC at some future time by invoking the Receive function on the
-// returned instance.
-//
-// See KeyPoolRefill for the blocking version and more details.
-func (c *Client) KeyPoolRefillAsync() FutureKeyPoolRefillResult {
-	cmd := walletjson.NewKeyPoolRefillCmd(nil)
-	return c.sendCmd(cmd)
-}
-
-// KeyPoolRefill fills the key pool as necessary to reach the default size.
-//
-// See KeyPoolRefillSize to override the size of the key pool.
-func (c *Client) KeyPoolRefill() error {
-	return c.KeyPoolRefillAsync().Receive()
-}
-
-// KeyPoolRefillSizeAsync returns an instance of a type that can be used to get
-// the result of the RPC at some future time by invoking the Receive function on
-// the returned instance.
-//
-// See KeyPoolRefillSize for the blocking version and more details.
-func (c *Client) KeyPoolRefillSizeAsync(newSize uint) FutureKeyPoolRefillResult {
-	cmd := walletjson.NewKeyPoolRefillCmd(&newSize)
-	return c.sendCmd(cmd)
-}
-
-// KeyPoolRefillSize fills the key pool as necessary to reach the specified
-// size.
-func (c *Client) KeyPoolRefillSize(newSize uint) error {
-	return c.KeyPoolRefillSizeAsync(newSize).Receive()
-}
-
-// ************************
-// Amount/Balance Functions
-// ************************
+// ************************ Amount/Balance Functions ************************
 
 // FutureListAccountsResult is a future promise to deliver the result of a
 // ListAccountsAsync or ListAccountsMinConfAsync RPC invocation (or an

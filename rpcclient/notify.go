@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"strconv"
 
-	walletjson "decred.org/dcrwallet/rpc/jsonrpc/types"
 	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/decred/dcrd/dcrutil/v2"
 	chainjson "github.com/decred/dcrd/rpc/jsonrpc/types/v2"
@@ -222,7 +221,6 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 	}
 
 	// Handle chain notifications.
-	var unhandled bool
 	switch chainjson.Method(ntfn.Method) {
 	// OnBlockConnected
 	case chainjson.BlockConnectedNtfnMethod:
@@ -422,123 +420,6 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 
 		c.ntfnHandlers.OnTxAcceptedVerbose(rawTx)
 
-	default:
-		unhandled = true
-	}
-
-	// No need to check for wallet notifications if already handled.
-	if !unhandled {
-		return
-	}
-
-	// Handle wallet notifications.
-	switch ntfn.Method {
-	// OnDcrdConnected
-	case walletjson.DcrdConnectedNtfnMethod:
-		// Ignore the notification if the client is not interested in
-		// it.
-		if c.ntfnHandlers.OnDcrdConnected == nil {
-			return
-		}
-
-		connected, err := parseDcrdConnectedNtfnParams(ntfn.Params)
-		if err != nil {
-			log.Warnf("Received invalid dcrd connected "+
-				"notification: %v", err)
-			return
-		}
-
-		c.ntfnHandlers.OnDcrdConnected(connected)
-
-	// OnAccountBalance
-	case walletjson.AccountBalanceNtfnMethod:
-		// Ignore the notification if the client is not interested in
-		// it.
-		if c.ntfnHandlers.OnAccountBalance == nil {
-			return
-		}
-
-		account, bal, conf, err := parseAccountBalanceNtfnParams(ntfn.Params)
-		if err != nil {
-			log.Warnf("Received invalid account balance "+
-				"notification: %v", err)
-			return
-		}
-
-		c.ntfnHandlers.OnAccountBalance(account, bal, conf)
-
-	// OnTicketPurchased:
-	case walletjson.TicketPurchasedNtfnMethod:
-		// Ignore the notification if the client is not interested in
-		// it.
-		if c.ntfnHandlers.OnTicketsPurchased == nil {
-			return
-		}
-
-		txHash, amount, err := parseTicketPurchasedNtfnParams(ntfn.Params)
-		if err != nil {
-			log.Warnf("Received invalid ticket purchased "+
-				"notification: %v", err)
-			return
-		}
-
-		c.ntfnHandlers.OnTicketsPurchased(txHash, amount)
-
-	// OnVotesCreated:
-	case walletjson.VoteCreatedNtfnMethod:
-		// Ignore the notification if the client is not interested in
-		// it.
-		if c.ntfnHandlers.OnVotesCreated == nil {
-			return
-		}
-
-		txHash, blockHash, height, sstxIn, voteBits, err :=
-			parseVoteCreatedNtfnParams(ntfn.Params)
-		if err != nil {
-			log.Warnf("Received invalid vote created "+
-				"notification: %v", err)
-			return
-		}
-
-		c.ntfnHandlers.OnVotesCreated(txHash, blockHash, height, sstxIn, voteBits)
-
-	// OnRevocationsCreated:
-	case walletjson.RevocationCreatedNtfnMethod:
-		// Ignore the notification if the client is not interested in
-		// it.
-		if c.ntfnHandlers.OnRevocationsCreated == nil {
-			return
-		}
-
-		txHash, sstxIn, err := parseRevocationCreatedNtfnParams(ntfn.Params)
-		if err != nil {
-			log.Warnf("Received invalid revocation created "+
-				"notification: %v", err)
-			return
-		}
-
-		c.ntfnHandlers.OnRevocationsCreated(txHash, sstxIn)
-
-	// OnWalletLockState
-	case walletjson.WalletLockStateNtfnMethod:
-		// Ignore the notification if the client is not interested in
-		// it.
-		if c.ntfnHandlers.OnWalletLockState == nil {
-			return
-		}
-
-		// The account name is not notified, so the return value is
-		// discarded.
-		_, locked, err := parseWalletLockStateNtfnParams(ntfn.Params)
-		if err != nil {
-			log.Warnf("Received invalid wallet lock state "+
-				"notification: %v", err)
-			return
-		}
-
-		c.ntfnHandlers.OnWalletLockState(locked)
-
-	// OnUnknownNotification
 	default:
 		if c.ntfnHandlers.OnUnknownNotification == nil {
 			log.Tracef("unknown notification received")

@@ -12,7 +12,6 @@ import (
 
 	walletjson "decred.org/dcrwallet/rpc/jsonrpc/types"
 	"github.com/decred/dcrd/chaincfg/chainhash"
-	"github.com/decred/dcrd/dcrjson/v3"
 	"github.com/decred/dcrd/dcrutil/v2"
 	chainjson "github.com/decred/dcrd/rpc/jsonrpc/types/v2"
 	"github.com/decred/dcrd/wire"
@@ -22,40 +21,6 @@ var (
 	// zeroUint32 is the zero value for a uint32.
 	zeroUint32 = uint32(0)
 )
-
-// FutureCreateEncryptedWalletResult is a future promise to deliver the error
-// result of a CreateEncryptedWalletAsync RPC invocation.
-type FutureCreateEncryptedWalletResult chan *response
-
-// Receive waits for and returns the error response promised by the future.
-func (r FutureCreateEncryptedWalletResult) Receive() error {
-	_, err := receiveFuture(r)
-	return err
-}
-
-// CreateEncryptedWalletAsync returns an instance of a type that can be used to
-// get the result of the RPC at some future time by invoking the Receive
-// function on the returned instance.
-//
-// See CreateEncryptedWallet for the blocking version and more details.
-//
-// NOTE: This is a dcrwallet extension.
-func (c *Client) CreateEncryptedWalletAsync(passphrase string) FutureCreateEncryptedWalletResult {
-	cmd := walletjson.NewCreateEncryptedWalletCmd(passphrase)
-	return c.sendCmd(cmd)
-}
-
-// CreateEncryptedWallet requests the creation of an encrypted wallet.  Wallets
-// managed by dcrwallet are only written to disk with encrypted private keys,
-// and generating wallets on the fly is impossible as it requires user input for
-// the encryption passphrase.  This RPC specifies the passphrase and instructs
-// the wallet creation.  This may error if a wallet is already opened, or the
-// new wallet cannot be written to disk.
-//
-// NOTE: This is a dcrwallet extension.
-func (c *Client) CreateEncryptedWallet(passphrase string) error {
-	return c.CreateEncryptedWalletAsync(passphrase).Receive()
-}
 
 // FutureDebugLevelResult is a future promise to deliver the result of a
 // DebugLevelAsync RPC invocation (or an applicable error).
@@ -475,28 +440,6 @@ func (r FutureExportWatchingWalletResult) Receive() ([]byte, []byte, error) {
 
 	return walletBytes, txStoreBytes, nil
 
-}
-
-// ExportWatchingWalletAsync returns an instance of a type that can be used to
-// get the result of the RPC at some future time by invoking the Receive
-// function on the returned instance.
-//
-// See ExportWatchingWallet for the blocking version and more details.
-//
-// NOTE: This is a dcrwallet extension.
-func (c *Client) ExportWatchingWalletAsync(account string) FutureExportWatchingWalletResult {
-	cmd := walletjson.NewExportWatchingWalletCmd(&account, dcrjson.Bool(true))
-	return c.sendCmd(cmd)
-}
-
-// ExportWatchingWallet returns the raw bytes for a watching-only version of
-// wallet.bin and tx.bin, respectively, for the specified account that can be
-// used by dcrwallet to enable a wallet which does not have the private keys
-// necessary to spend funds.
-//
-// NOTE: This is a dcrwallet extension.
-func (c *Client) ExportWatchingWallet(account string) ([]byte, []byte, error) {
-	return c.ExportWatchingWalletAsync(account).Receive()
 }
 
 // FutureGetBestBlockResult is a future promise to deliver the result of a
